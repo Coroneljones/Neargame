@@ -1,8 +1,8 @@
-var/list/admin_ranks = list()								//list of all ranks with associated rights
+var/global/list/admin_ranks = list()								//list of all ranks with associated rights
 
 //load our rank - > rights associations
 /proc/load_admin_ranks()
-	admin_ranks.Cut()
+	global.admin_ranks.Cut()
 
 	var/previous_rights = 0
 
@@ -42,12 +42,12 @@ var/list/admin_ranks = list()								//list of all ranks with associated rights
 				if("spawn","create")			rights |= R_SPAWN
 				if("mod")						rights |= R_MOD
 
-		admin_ranks[rank] = rights
+		global.admin_ranks[rank] = rights
 		previous_rights = rights
 
 	#ifdef TESTING
 	var/msg = "Permission Sets Built:\n"
-	for(var/rank in admin_ranks)
+	for(var/rank in global.admin_ranks)
 		msg += "\t[rank] - [admin_ranks[rank]]\n"
 	testing(msg)
 	#endif
@@ -56,9 +56,10 @@ var/list/admin_ranks = list()								//list of all ranks with associated rights
 /hook/startup/proc/loadAdmins()
 	load_admins()
 	return 1
+
 /proc/load_admins()
 	//clear the datums references
-	admin_datums.Cut()
+	global.admin_datums.Cut()
 	for(var/client/C in global.admins)
 		C.remove_admin_verbs()
 		C.holder = null
@@ -71,29 +72,21 @@ var/list/admin_ranks = list()								//list of all ranks with associated rights
 	if(config.admin_legacy_system)
 		load_admin_ranks()
 
-		//load text from file
-		var/list/Lines = file2list("config/admins.txt")
+		//load json from file
+		var/list/json = rustg_read_toml_file("config/admins.toml")
+		if(!json)
+			PRINT_STACK_TRACE("Failed to load admins.toml!")
+			return
 
-		//process each line seperately
-		for(var/line in Lines)
-			if(!length(line))				continue
-			if(copytext(line,1,2) == "#")	continue
+		for(var/key in json)
+			var/ckey = ckey(key)
+			if(!ckey)
+				continue
 
-			//Split the line at every "-"
-			var/list/List = splittext(line, "-")
-			if(!List.len)					continue
-
-			//ckey is before the first "-"
-			var/ckey = ckey(List[1])
-			if(!ckey)						continue
-
-			//rank follows the first "-"
-			var/rank = ""
-			if(List.len >= 2)
-				rank = ckeyEx(List[2])
+			var/rank = ckeyEx(LAZYACCESS(json, key))
 
 			//load permissions associated with this rank
-			var/rights = admin_ranks[rank]
+			var/rights = global.admin_ranks[rank]
 
 			//create the admin datum and store it for later use
 			var/datum/admins/D = new /datum/admins(rank, rights, ckey)

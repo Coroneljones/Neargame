@@ -99,8 +99,8 @@ var/global/max_players = 100
 
 
 	//Logs all hrefs
-	if(config && config.log_hrefs && href_logfile)
-		href_logfile << "<small>[time2text(world.timeofday,"hh:mm")] [src] (usr:[usr])</small> || [hsrc ? "[hsrc] " : ""][href]<br>"
+	if(config && config.log_hrefs && world_href_log)
+		world_href_log << "<small>[time2text(world.timeofday,"hh:mm")] [src] (usr:[usr])</small> || [hsrc ? "[hsrc] " : ""][href]<br>"
 
 	switch(href_list["_src_"])
 		if("holder")	hsrc = holder
@@ -187,14 +187,16 @@ var/global/max_players = 100
 
 	if(!account_join_date)
 		account_join_date = findJoinDate()
+
 	switch(private_party)
 		if(TRUE)
 			if((!global.ckeywhitelistweb.Find(src.ckey)))
 				notInvited()
 				return
 		if(FALSE)
-			global.standard_year.Find(account_join_date)
-			if(text2num(global.standard_year.group[1]) >= 2024)
+			var/static/regex/standard_year = regex(@"^(?<year>[0-9]{4})")
+			standard_year.Find(account_join_date)
+			if(text2num(standard_year.group[1]) >= 2024)
 				notInvited()
 				return
 

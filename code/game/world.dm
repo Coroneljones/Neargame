@@ -1,13 +1,4 @@
 var/current_server
-/world
-	mob = /mob/new_player
-	turf = /turf/simulated/wall/r_wall/cave
-	area = /area/dunwell/surface
-	view = "15x15"
-	cache_lifespan = 0	//stops player uploaded stuff from being kept in the rsc past the current session
-	sleep_offline = FALSE
-	fps = 20
-
 var/story_id = 0
 var/server_language = "IZ"
 var/april_fools = FALSE
@@ -18,12 +9,7 @@ var/rtlog_path
 
 #define RECOMMENDED_VERSION 516
 /world/New()
-	//logs]
 	set waitfor = FALSE
-#ifdef NEARWEB_LIVE
-	server_language = "IZ"
-	current_server = "S1"
-#endif
 	TgsNew(minimum_required_security_level = TGS_SECURITY_TRUSTED)
 	for(var/obj/effect/landmark/mapinfo/L in landmarks_list)
 		if (L.name == "mapinfo" && L.mapname != "Mini War")
@@ -35,29 +21,24 @@ var/rtlog_path
 		config.server_name += " #[(world.port % 1000) / 100]"
 
 	world_name()
+	// Init the debugger first so we can debug Master
+	init_debugger()
 	callHook("startup")
-	load_admins()
+	callHook("startup/loadAdmins")
 	LoadBansjob()
 	load_whitelist()
 	if(!fexists("data/game_version.sav"))//This should only have to be run once.
 		add_story_id()
 	get_story_id()
-#ifdef NEARWEB_LIVE
+	#ifdef NEARWEB_LIVE
 	load_db_whitelist()
 	load_db_bans()
 	load_comrade_list()
 	load_pigplus_list()
 	load_villain_list()
-	build_donations_list()
 	get_story_id()
-#endif
-	href_logfile = file("data/logs/[server_language]-[current_server]/STORY[story_id]-[date_string] hrefs.htm")
-	diary = file("data/logs/[server_language]-[current_server]/STORY[story_id]-[date_string].log")
-	diaryofmeanpeople = file("data/logs/[server_language]-[current_server]/STORY[story_id]-[date_string] Attack.log")
-	diary << "\n\nStarting up. [time2text(world.timeofday, "hh:mm.ss")]\n---------------------"
-	rtlog_path = file("data/logs/[server_language]-[current_server]/STORY[story_id]-[date_string] Runtime.log")
-	diaryofmeanpeople << "\n\nStarting up. [time2text(world.timeofday, "hh:mm.ss")]\n---------------------"
-	rtlog_path << "\n\nStarting up. [time2text(world.timeofday, "hh:mm.ss")]\n---------------------"
+	#endif
+	SetupLogs()
 	changelog_hash = md5('html/changelog.html')					//used for telling if the changelog has changed recently
 	jobban_loadbanfile()
 	jobban_updatelegacybans()
@@ -69,8 +50,6 @@ var/rtlog_path
 	src.update_status()
 	world.log << "--†SERVER LANGUAGE†--"
 	world.log << "[server_language] ON [src.port]"
-	// Init the debugger first so we can debug Master
-	init_debugger()
 	processScheduler = new
 	thanatiGlobal = new
 	master_controller = new /datum/controller/game_controller()
@@ -146,6 +125,7 @@ var/rtlog_path
 	..(reason)
 
 /world/Del()
+	processScheduler.stop()
 	Master.Shutdown()
 	auxcleanup()
 	. = ..()
@@ -179,6 +159,25 @@ var/rtlog_path
 	config.loadsql("config/dbconfig.txt")
 	// apply some settings from config..
 	abandon_allowed = config.respawn
+
+/world/proc/SetupLogs()
+	global.log_directory = "data/logs/[time2text(world.realtime, "YYYY/MM/DD")]/round-"
+	if(story_id)
+		global.log_directory += "[story_id]"
+	else
+		global.log_directory += "[replacetext(time_stamp(), ":", ".")]"
+
+	global.world_qdel_log = file("[global.log_directory]/qdel.log")
+	to_file(global.world_qdel_log, "\n\nStarting up round ID [story_id]. [time_stamp()]\n---------------------")
+
+	global.world_href_log = file("[global.log_directory]/href.log") // Used for config-optional total href logging
+	diary = file("[global.log_directory]/main.log") // This is the primary log, containing attack, admin, and game logs.
+	to_file(diary, "[log_end]\n[log_end]\nStarting up. (ID: [story_id]) [time2text(world.timeofday, "hh:mm.ss")][log_end]\n---------------------[log_end]")
+
+	//if(get_config_value(/decl/config/toggle/log_runtime))
+	var/runtime_log = file("[global.log_directory]/runtime.log")
+	to_file(runtime_log, "Game [story_id] starting up at [time2text(world.timeofday, "hh:mm.ss")]")
+	log = runtime_log // runtimes and some other output is logged directly to world.log, which is redirected here.
 
 /world/proc/update_status()
 	var/s = ""

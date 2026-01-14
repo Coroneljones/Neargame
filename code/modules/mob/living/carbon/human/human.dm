@@ -344,8 +344,9 @@
 /mob/living/carbon/human/var/temperature_resistance = T0C+75
 
 
-/mob/living/carbon/human/show_inv(mob/user as mob)
+/mob/living/carbon/human/show_inv(mob/user)
 	if(!CanPhysicallyInteractWith(user, src))
+		to_chat(user, SPAN_WARNING("You must get closer to [name]!"))
 		return
 	if(istype(src, /mob/living/carbon/human/monster))
 		return
@@ -499,6 +500,9 @@
 /// TODO: Refactor this with proper state checks.
 /mob/living/carbon/human/Topic(href, href_list)
 	if (href_list["refresh"])
+		if(!CanPhysicallyInteractWith(usr, src))
+			to_chat(usr, SPAN_WARNING("You must get closer to [name]!"))
+			return
 		show_inv(machine)
 
 	if (href_list["mach_close"])
@@ -507,6 +511,9 @@
 		src << browse(null, t1)
 
 	if ((href_list["item"] && !( usr.stat ) && usr.canmove && !( usr.restrained() ) && in_range(src, usr) && ticker)) //if game hasn't started, can't make an equip_e
+		if(!CanPhysicallyInteractWith(usr, src))
+			to_chat(usr, SPAN_WARNING("You must get closer to [name]!"))
+			return
 		var/obj/effect/equip_e/human/O = new /obj/effect/equip_e/human(  )
 		O.source = usr
 		O.target = src
@@ -515,9 +522,7 @@
 		O.t_loc = loc
 		O.place = href_list["item"]
 		requests += O
-		spawn( 0 )
-			O.process()
-			return
+		addtimer(CALLBACK(O, TYPE_PROC_REF(/obj/effect/equip_e/human, process)))
 
 	if (href_list["lookitem"])
 		var/obj/item/I = locate(href_list["lookitem"])
@@ -529,8 +534,10 @@
 
 	///////Interactions!!///////
 	if(href_list["interaction"])
-
 		if (usr.stat == DEAD || usr.stat == UNCONSCIOUS || usr.restrained())
+			return
+		if(!CanPhysicallyInteractWith(usr, src))
+			to_chat(usr, SPAN_WARNING("You must get closer to [name]!"))
 			return
 
 		//CONDITIONS
@@ -771,37 +778,22 @@
 
 		else if (href_list["interaction"] == "anal")
 			if(get_dist(H,P) <= 1 && isnude_p && isnude && haspenis && hasanus_p)
-				if (H.erpcooldown == 0)
-					if (H.penis_size > 0)
-						H.fuck(H, P, "anal")
-				else
-					var/message = pick("it's not erect...")
-					to_chat(H, message)
+				if (H.penis_size > 0)
+					H.fuck(H, P, "anal")
+
 		else if (href_list["interaction"] == "vaginal")
 			if (get_dist(H,P) <= 1 && isnude_p && isnude && haspenis && hasanus_p)
-				if (H.erpcooldown == 0)
-					if (H.penis_size > 0)
-						H.fuck(H, P, "vaginal")
-				else
-					var/message = pick("It's not erect...")
-					to_chat(H, message)
+				if (H.penis_size > 0)
+					H.fuck(H, P, "vaginal")
 
 		else if (href_list["interaction"] == "oral")
 			if (get_dist(H,P) <= 1 && isnude && mouthfree_p && haspenis)
-				if (H.erpcooldown == 0)
-					if (H.penis_size > 0)
-						H.fuck(H, P, "oral")
-				else
-					var/message = pick("It's not erect...")
-					to_chat(H, message)
+				if (H.penis_size > 0)
+					H.fuck(H, P, "oral")
 
 		else if (href_list["interaction"] == "mount")
 			if (get_dist(H,P) <= 1 && isnude && isnude_p && haspenis_p && hasvagina)
-				if(P.erpcooldown == 0)
-					H.fuck(H, P, "mount")
-				else
-					var/message = pick("You have no lust now.")
-					to_chat(H, "<span class='erp'>[message]</span>")
+				H.fuck(H, P, "mount")
 
 
 

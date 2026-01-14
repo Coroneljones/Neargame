@@ -21,6 +21,10 @@ var/global/log_adminsay = 1
 				var/msg = rendered
 				to_chat(C, msg)
 
+/proc/admin_notice(var/message, var/rights)
+	for(var/mob/M in global.mob_list)
+		if(check_rights(rights, 0, M))
+			to_chat(M, message)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////Panels
 
@@ -755,6 +759,7 @@ var/global/log_adminsay = 1
 	if(ticker.current_state == GAME_STATE_PREGAME)
 		ticker.force_started = TRUE
 		ticker.current_state = GAME_STATE_SETTING_UP
+		Master.SetRunLevel(RUNLEVEL_SETUP)
 		log_admin("[usr.key] has started the game.")
 		message_admins("<font color='blue'>[usr.key] has started the game (master_mode: [master_mode]).</font>")
 		return 1

@@ -143,6 +143,7 @@ var/list/admin_verbs_debug = list(
 	/client/proc/callproc_datum,
 	/client/proc/toggledebuglogs,
 	/client/proc/cordinates,
+	/client/proc/toggle_browser_inspect,
 	#ifdef TESTING
 	/client/verb/purge_all_destroyed_objects,
 	/client/verb/show_qdeleted,
