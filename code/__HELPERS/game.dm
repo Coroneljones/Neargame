@@ -375,7 +375,7 @@
 			for(var/client/C in group)
 				C.screen -= O
 
-datum/projectile_data
+/datum/projectile_data
 	var/src_x
 	var/src_y
 	var/time
