@@ -103,12 +103,12 @@
 	landmarks_list |= src
 	return 1
 
-/obj/effect/landmark/Destroy()
-	. = ..()
-	landmarks_list -= src
-	loc = null
-	tag = null
-	qdel(reagents)
+/obj/effect/landmark/Destroy(var/force = FALSE)
+	if(delete_me || force)
+		landmarks_list -= src
+		return ..()
+	return QDEL_HINT_LETMELIVE
+
 
 
 /obj/effect/landmark/start

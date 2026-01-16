@@ -735,13 +735,13 @@
 					call_sound_emote("fart")
 					m_type = 2
 
-		if(("poo") || ("poop") || ("shit") || ("crap"))
+		if(("poo"), ("poop"), ("shit"), ("crap"))
 			handle_shit()
 
-		if(("pee") || ("urinate") || ("piss"))
+		if(("pee"), ("urinate"), ("piss"))
 			handle_piss()
 
-		if(("vomit") || ("puke") || ("throwup"))
+		if(("vomit"), ("puke"), ("throwup"))
 			if(ismonster(src))
 				return
 			else
@@ -766,9 +766,9 @@
 				return to_chat(src, "<span class='combatbold'>[pick(fnord)]</span><span class='combat'> I have clothes on.</span>")
 			if(src.w_uniform && !P.pants_down)
 				return to_chat(src, "<span class='combatbold'>[pick(fnord)]</span><span class='combat'> I have clothes on.</span>")
-			
+
 			src.doing_fuck = TRUE
-			
+
 			if(src.has_penis())
 				message = "<span class='examinebold'>[src]</span> <span class='examine'>[pick(nonolist)]</span>"
 				src.lust += 12
@@ -786,7 +786,7 @@
 					src.lust = 0
 				else
 					src.moan()
-					
+
 			// Add cooldown reset with same timer (2 deciseconds)
 			spawn(2)
 				src.doing_fuck = FALSE

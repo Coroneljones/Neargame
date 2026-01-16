@@ -57,6 +57,13 @@
 
 		return f_style
 
+/proc/sanitize_name(name, species = SPECIES_HUMAN, robot = 0)
+	var/datum/species/current_species
+	if(species)
+		current_species = all_species[species]
+
+	return current_species ? current_species.sanitize_name(name, robot) : sanitizeName(name, MAX_NAME_LEN, robot)
+
 /proc/random_name(gender, species = "Human", dwarven_name = 0)
 	if(!dwarven_name)
 		if(gender==FEMALE)	return capitalize(pick(first_names_female)) + " " + capitalize(pick(last_names))

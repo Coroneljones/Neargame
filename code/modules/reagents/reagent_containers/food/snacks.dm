@@ -176,7 +176,7 @@
 			I.color = src.filling_color
 			U.overlays += I
 
-			reagents.trans_to_obj(U, min(reagents.total_volume,5))
+			reagents.trans_to(U, min(reagents.total_volume,5))
 
 			if (reagents.total_volume <= 0)
 				qdel(src)
@@ -213,7 +213,7 @@
 			var/reagents_per_slice = reagents.total_volume/slices_num
 			for(var/i=1 to (slices_num-slices_lost))
 				var/obj/slice = new slice_path (src.loc)
-				reagents.trans_to_obj(slice, reagents_per_slice)
+				reagents.trans_to(slice, reagents_per_slice)
 			qdel(src)
 			return
 
@@ -235,7 +235,7 @@
 	user.visible_message("<b>[user]</b> nibbles away at \the [src].","You nibble away at \the [src].")
 	bitecount++
 	if(reagents && user.reagents)
-		reagents.trans_to_mob(user, bitesize, CHEM_INGEST)
+		reagents.trans_to(user, bitesize)
 	spawn(5)
 		if(!src && !user.client)
 			user.custom_emote(1,"[pick("burps", "cries for more", "burps twice", "looks at the area where the food was")]")
@@ -524,9 +524,9 @@
 /obj/item/reagent_containers/food/snacks/egg/throw_impact(atom/hit_atom)
 	..()
 	new/obj/effect/decal/cleanable/egg_smudge(src.loc)
-	src.reagents.splash(hit_atom, reagents.total_volume)
+	src.reagents.reaction(hit_atom, TOUCH)
 	src.visible_message("\red [src.name] has been squashed.","\red You hear a smack.")
-	qdel(src)
+	del(src)
 
 /obj/item/reagent_containers/food/snacks/egg/attackby(obj/item/W as obj, mob/user as mob)
 	if(istype( W, /obj/item/toy/crayon ))

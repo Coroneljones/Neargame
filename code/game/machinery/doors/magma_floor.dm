@@ -41,7 +41,7 @@
 	H.death(1)
 	return
 
-/turf/simulated/floor/plating/magmareal/Entered(AM)
+/turf/simulated/floor/plating/magmareal/Crossed(AM)
 	if(!istype(AM, /mob/living))
 		if(!istype(AM, /obj))
 			return
@@ -56,7 +56,6 @@
 	if(M.loc != src)
 		return
 	var/is_client_moving = (ismob(M) && M.client && M.client.moving)
-	//var/is_client_moving = (ismob(M) && M.client && M.client.moving)
 	if(M.throwing)
 		sleep(4)
 		spawn(0)

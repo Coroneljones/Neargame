@@ -338,7 +338,7 @@ var/global/list/lifeweb_objects = list()
 				L.on = FALSE
 				L.update()
 
-obj/machinery/web_recharger/process()
+/obj/machinery/web_recharger/process()
 	var/area/AffectedArea = get_area(src)
 	for(var/obj/machinery/lifeweb/control/CONTROL in lifeweb_objects)
 		if(charging && CONTROL.draining)

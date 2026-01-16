@@ -50,7 +50,6 @@
 
 /mob/proc/emote_dead(var/message)
 
-	return
 	if(client.prefs.muted & MUTE_DEADCHAT)
 		src << "\red You cannot send deadchat emotes (muted)."
 		return

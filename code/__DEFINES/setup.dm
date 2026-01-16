@@ -200,13 +200,6 @@ var/list/RESTRICTED_CAMERA_NETWORKS = list( //Those networks can only be accesse
 #define IS_UNATHI 4
 #define IS_XENOS 5
 
-
-//will not bother pumping or filtering if the gas source as fewer than this amount of moles, to help with performance.
-#define MINUMUM_MOLES_TO_PUMP	0.01
-#define MINUMUM_MOLES_TO_FILTER	0.1
-
-#define ATMOS_DEFAULT_VOLUME_FILTER	200	//L
-
 var/list/hit_appends = list("-OOF", "-ACK", "-UGH", "-HRNK", "-HURGH", "-GLORF")
 
 // Reagent metabolism defines.

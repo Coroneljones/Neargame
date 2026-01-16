@@ -166,3 +166,16 @@
 #define MATERIAL_PADDING 4
 
 #define TABLE_BRITTLE_MATERIAL_MULTIPLIER 4 // Amount table damage is multiplied by if it is made of a brittle material (e.g. glass)
+
+#define MIDNIGHT_ROLLOVER		864000	//number of deciseconds in a day
+
+#define WORLD_ICON_SIZE 32 //Needed for the R-UST port
+#define PIXEL_MULTIPLIER WORLD_ICON_SIZE/32 //Needed for the R-UST port
+
+// Maploader bounds indices
+#define MAP_MINX 1
+#define MAP_MINY 2
+#define MAP_MINZ 3
+#define MAP_MAXX 4
+#define MAP_MAXY 5
+#define MAP_MAXZ 6

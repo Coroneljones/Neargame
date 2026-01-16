@@ -30,6 +30,7 @@
 	sharp = 0
 	edge = 1
 	var/scoop_volume = 5
+	var/scoop_food = 1
 	var/loaded // Name for currently loaded food object.
 	var/loaded_color // Color for currently loaded food object.
 
@@ -178,10 +179,12 @@
 	force_wielded = 18
 	force_unwielded = 13
 	edge = FALSE
+	sharp = TRUE
 	drop_sound = 'sound/weapons/knife_drop.ogg'
 	drawsound = 'sound/weapons/knife_equip.ogg'
 	item_worth = 4
 	hitsound= "slash"
+	scoop_food = 0
 	speciality = SKILL_KNIFE
 	var/atk_mode = SLASH
 

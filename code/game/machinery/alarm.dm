@@ -313,7 +313,7 @@
 
 
 /obj/machinery/alarm/proc/master_is_operating()
-	return alarm_area.master_air_alarm && !(alarm_area.master_air_alarm.stat & (NOPOWER|BROKEN))
+	return alarm_area && alarm_area.master_air_alarm && !(alarm_area.master_air_alarm.stat & (NOPOWER | BROKEN))
 
 
 /obj/machinery/alarm/proc/elect_master()
@@ -1164,7 +1164,7 @@ table tr:first-child th:first-child { border: none;}
 // AREA LOCKDOWN
 
 /obj/machinery/alarm/proc
-	air_doors_close(manual)
+	/air_doors_close(manual)
 		var/area/A = get_area(loc)
 		for(var/obj/machinery/door/airlock/E in A.master.all_doors)
 			var/obj/LightTest = locate(/obj/effect/alertlighting/atmoslight) in E.loc
@@ -1233,7 +1233,7 @@ table tr:first-child th:first-child { border: none;}
 						world << imagelight
 			RA.activate_air_doors(manual*5)
 
-	air_doors_open(manual)
+	/air_doors_open(manual)
 		var/area/A = get_area(loc)
 		for(var/obj/machinery/door/airlock/E in A.master.all_doors)
 			var/area/B = get_area(E.loc)

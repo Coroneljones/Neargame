@@ -38,10 +38,10 @@ var/list/fontsRC = list('code/chatpanel/browserassets/rsc/gothic.ttf', 'code/cha
 
 /obj/item/paper/propaganda
 	icon_state = "paperthanati"
-	New()
-		..()
-		spawn(1 MINUTES)
-			qdel(src)
+/obj/item/paper/propaganda/New()
+	..()
+	spawn(1 MINUTES)
+		qdel(src)
 
 /obj/item/paper/New()
 	..()
