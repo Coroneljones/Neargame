@@ -81,9 +81,9 @@ var/global/image/typing_indicator
 			if (world.time > last_typed_time + TYPING_INDICATOR_LIFETIME)
 				set_typing_indicator(0)
 				return
-			if(length(temp) > 5 && findtext(temp, "Say \"", 1, 7))
+			if(length(temp) > 5 && findtextEx(temp, "Say \"", 1, 7))
 				set_typing_indicator(1)
-			else if(length(temp) > 3 && findtext(temp, "Me ", 1, 5))
+			else if(length(temp) > 3 && findtextEx(temp, "Me ", 1, 5))
 				set_typing_indicator(1)
 
 			else

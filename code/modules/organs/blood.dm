@@ -259,8 +259,8 @@ proc/blood_incompatible(donor,receiver,donor_species,receiver_species)
 
 	var/donor_antigen = copytext(donor,1,length(donor))
 	var/receiver_antigen = copytext(receiver,1,length(receiver))
-	var/donor_rh = (findtext(donor,"+")>0)
-	var/receiver_rh = (findtext(receiver,"+")>0)
+	var/donor_rh = (findtextEx(donor,"+")>0)
+	var/receiver_rh = (findtextEx(receiver,"+")>0)
 
 	if(donor_rh && !receiver_rh) return 1
 	switch(receiver_antigen)

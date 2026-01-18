@@ -1,6 +1,5 @@
-var/global/dmm_suite/maploader = new
+/var/global/dmm_suite/maploader = new /dmm_suite()
 
-dmm_suite{
 /*
 	dmm_suite version 1.0
 		Released January 30th, 2011.
@@ -50,4 +49,3 @@ dmm_suite{
 	code, and that the /dmm_reader trusts that files to be loaded are in fact valid
 	.dmm files. Errors in the .dmm format will cause runtime errors.
 */
-	}

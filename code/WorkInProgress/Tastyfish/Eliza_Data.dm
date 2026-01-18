@@ -269,7 +269,7 @@
 
 		// drop leading parts
 		for(var/leader in object_leaders)
-			var/i = findtext(object, leader)
+			var/i = findtextEx(object, leader)
 			if(i)
 				object = copytext(object, i + length(leader))
 				break
@@ -289,7 +289,7 @@
 	proc/param(object)
 		// drop leading parts
 		for(var/leader in object_leaders)
-			var/i = findtext(object, leader)
+			var/i = findtextEx(object, leader)
 			if(i)
 				object = copytext(object, i + length(leader))
 				break
@@ -353,7 +353,7 @@
 
 	process(object)
 		// get name & message
-		var/i = findtext(object, ",")
+		var/i = findtextEx(object, ",")
 		var/sl = 1
 		if(!i || length(object) < i + sl)
 			return "Tell who that you what?"

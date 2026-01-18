@@ -30,10 +30,10 @@
 	var/list/strip_chars = list("<",">")
 	t = copytext(t,1,limit)
 	for(var/char in strip_chars)
-		var/index = findtext(t, char)
+		var/index = findtextEx(t, char)
 		while(index)
 			t = copytext(t, 1, index) + copytext(t, index+1)
-			index = findtext(t, char)
+			index = findtextEx(t, char)
 	return t
 
 /**
@@ -43,18 +43,18 @@
 #define strip_improper(input_text) replacetext(replacetext(input_text, "\proper", ""), "\improper", "")
 var/global/regex/starts_uppercase_regex = regex(@"^[A-Z]")
 var/global/regex/starts_lowercase_regex = regex(@"^[a-z]")
-#define is_proper(input_text) ((findtext(input_text, "\proper") == 1) || findtext(input_text, starts_uppercase_regex))
-#define is_improper(input_text) ((findtext(input_text, "\improper") == 1 || findtext(input_text, starts_lowercase_regex)))
+#define is_proper(input_text) ((findtextEx(input_text, "\proper") == 1) || findtextEx(input_text, starts_uppercase_regex))
+#define is_improper(input_text) ((findtextEx(input_text, "\improper") == 1 || findtextEx(input_text, starts_lowercase_regex)))
 
 /proc/sanitize_PDA(var/msg)
-	var/index = findtext(msg, "�")
+	var/index = findtextEx(msg, "�")
 	while(index)
 		msg = copytext_char(msg, 1, index) + "&#1103;" + copytext_char(msg, index+1)
-		index = findtext(msg, "�")
-	index = findtext(msg, "&#255;")
+		index = findtextEx(msg, "�")
+	index = findtextEx(msg, "&#255;")
 	while(index)
 		msg = copytext_char(msg, 1, index) + "&#1103;" + copytext_char(msg, index+1)
-		index = findtext(msg, "&#255;")
+		index = findtextEx(msg, "&#255;")
 	return msg
 
 //Used for preprocessing entered text
@@ -126,10 +126,10 @@ var/global/regex/starts_lowercase_regex = regex(@"^[a-z]")
 
 /proc/sanitize_uni(var/t,var/list/repl_chars = list("�"="&#255;"))
 	for(var/char in repl_chars)
-		var/index = findtext(t, char)
+		var/index = findtextEx(t, char)
 		while(index)
 			t = copytext_char(t, 1, index) + repl_chars[char] + copytext_char(t, index+1)
-			index = findtext(t, char)
+			index = findtextEx(t, char)
 	return t
 
 //Returns null if there is any bad text in the string
@@ -228,7 +228,7 @@ var/global/regex/starts_lowercase_regex = regex(@"^[a-z]")
 /proc/dd_hasprefix(text, prefix)
 	var/start = 1
 	var/end = length(prefix) + 1
-	return findtext(text, prefix, start, end)
+	return findtextEx(text, prefix, start, end)
 
 //Checks the beginning of a string for a specified sub-string. This proc is case sensitive
 //Returns the position of the substring or 0 if it was not found
@@ -242,7 +242,7 @@ var/global/regex/starts_lowercase_regex = regex(@"^[a-z]")
 /proc/dd_hassuffix(text, suffix)
 	var/start = length(text) - length(suffix)
 	if(start)
-		return findtext(text, suffix, start, null)
+		return findtextEx(text, suffix, start, null)
 	return
 
 //Checks the end of a string for a specified substring. This proc is case sensitive
@@ -344,8 +344,8 @@ var/global/regex/starts_lowercase_regex = regex(@"^[a-z]")
 	var/opentag = 1 //These store the position of < and > respectively.
 	var/closetag = 1
 	while(1)
-		opentag = findtext(input, "<")
-		closetag = findtext(input, ">")
+		opentag = findtextEx(input, "<")
+		closetag = findtextEx(input, ">")
 		if(closetag && opentag)
 			if(closetag < opentag)
 				input = copytext(input, (closetag + 1))
@@ -541,13 +541,13 @@ var/global/regex/starts_lowercase_regex = regex(@"^[a-z]")
 
 //Used for applying byonds text macros to strings that are loaded at runtime
 /proc/apply_text_macros(string)
-	var/next_backslash = findtext(string, "\\")
+	var/next_backslash = findtextEx(string, "\\")
 	if(!next_backslash)
 		return string
 
 	var/leng = length(string)
 
-	var/next_space = findtext(string, " ", next_backslash + 1)
+	var/next_space = findtextEx(string, " ", next_backslash + 1)
 	if(!next_space)
 		next_space = leng - next_backslash
 

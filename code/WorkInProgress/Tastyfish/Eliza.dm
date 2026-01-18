@@ -26,14 +26,14 @@
 	// pad so we can detect initial and final words correctly
 	input_line = " " + src.input_line + " "
 	// remove apostrophes
-	for(var/i = -1, i != 0, i = findtext(input_line, "'"))
+	for(var/i = -1, i != 0, i = findtextEx(input_line, "'"))
 		if(i == -1)
 			continue
 		input_line = copytext(input_line, 1, i) + copytext(input_line, i + 1, 0)
 
 	// did user insult us? (i don't really want cursing in the source code,
 	// so keep it the simple original check from the 70's code :p)
-	if(findtext(input_line, "shut"))
+	if(findtextEx(input_line, "shut"))
 		// sssh
 		return
 
@@ -48,7 +48,7 @@
 	for(var/i = 1, i <= keywords.len, i++)
 		keyword = keywords[i]
 		for(var/j = 1, j <= keyword.phrases.len, j++)
-			keypos = findtext(input_line, " " + keyword.phrases[j])
+			keypos = findtextEx(input_line, " " + keyword.phrases[j])
 			if(keypos != 0)
 				// found it!
 				keyphrase = keyword.phrases[j]
