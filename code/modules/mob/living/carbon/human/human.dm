@@ -1437,7 +1437,7 @@
 				if(HEADD.brained)
 					status += "<span class='magentatext'>CRACK</span>"
 			if(status.len)
-				msg += "<span class='statustext'>¤ [capitalize(org.display_name)]: [english_listt(status)]</span>\n"
+				msg += "<span class='statustext'>¤ [capitalize(org.display_name)]: [english_list(status)]</span>\n"
 			else
 				var/ok_msg = "OK"
 				if(isrev)

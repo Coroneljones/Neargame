@@ -462,3 +462,9 @@
 		return TRUE
 
 	return FALSE //not in range and not telekinetic
+
+/proc/MinutesToTicks(var/minutes)
+	return SecondsToTicks(60 * minutes)
+
+/proc/SecondsToTicks(var/seconds)
+	return seconds * 10

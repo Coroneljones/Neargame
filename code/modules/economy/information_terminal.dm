@@ -57,16 +57,15 @@
 	..()
 
 /obj/machinery/information_terminal/proc/repeat_announces()
-	INICIO
 	spawn(100)
 		if(!length(announces))
-			goto INICIO
+			goto START
 			return
 		var/lastannounce = announces[length(announces)]
 		if(lastannounce)
 			spawn(rand(600,3000))
 				src.visible_message("<span class='examinebold'>\[Information Terminal\]</span> <span class='examine'>\'[lastannounce]\'</span>", 1)
-				goto INICIO
+				goto START
 
 /obj/machinery/information_terminal/proc/pusherize()
 	src.screenbroken = TRUE

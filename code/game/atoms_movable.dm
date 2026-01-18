@@ -47,7 +47,7 @@
 
 	loc = null
 	if(un_opaque)
-		un_opaque.recalc_atom_opacity()
+	//	un_opaque.recalc_atom_opacity()
 	if (pulledby)
 		if (pulledby.pulling == src)
 			pulledby.pulling = null
@@ -240,10 +240,10 @@
 				if(!A.density || A.throwpass)
 					continue
 				// Special handling of windows, which are dense but block only from some directions
-				if(istype(A, /obj/structure/window))
-					var/obj/structure/window/W = A
-					if (!W.is_full_window() && !(turn(src.last_move, 180) & A.dir))
-						continue
+				//if(istype(A, /obj/structure/window))
+				//	var/obj/structure/window/W = A
+					//if (!W.is_full_window() && !(turn(src.last_move, 180) & A.dir))
+						//continue
 				// Same thing for (closed) windoors, which have the same problem
 				else if(istype(A, /obj/machinery/door/window) && !(turn(src.last_move, 180) & A.dir))
 					continue
@@ -391,10 +391,9 @@
 /atom/movable/overlay/attack_hand(a, b, c)
 	if (src.master)
 		return src.master.attack_hand(a, b, c)
-	return
 
-/atom/movable/proc/touch_map_edge()
-	if(z in using_map.sealed_levels)
+/*/atom/movable/proc/touch_map_edge()
+	if(z in sealed_levels)
 		return
 
 	if(config.use_overmap)
@@ -420,20 +419,20 @@
 		else if (y >= (world.maxy - TRANSITIONEDGE + 1))
 			y = TRANSITIONEDGE + 1
 			x = rand(TRANSITIONEDGE + 2, world.maxx - TRANSITIONEDGE - 2)
-
-		if(ticker && istype(ticker.mode, /datum/game_mode/nuclear)) //only really care if the game mode is nuclear
+*/
+/*		if(ticker && istype(ticker.mode, /datum/game_mode/nuclear)) //only really care if the game mode is nuclear
 			var/datum/game_mode/nuclear/G = ticker.mode
 			G.check_nuke_disks()
 
 		spawn(0)
-			if(loc) loc.Entered(src)
+			if(loc) loc.Entered(src)*/
 
 //by default, transition randomly to another zlevel
 /atom/movable/proc/get_transit_zlevel()
-	var/list/candidates = using_map.accessible_z_levels.Copy()
+/*	var/list/candidates = accessible_z_levels.Copy()
 	candidates.Remove("[src.z]")
 
 	if(!candidates.len)
 		return null
-	return text2num(pickweight(candidates))
+	return text2num(pickweight(candidates))*/
 

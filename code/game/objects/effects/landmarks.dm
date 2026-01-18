@@ -2,9 +2,11 @@
 	name = "landmark"
 	icon = 'icons/mob/screen1.dmi'
 	icon_state = "x2"
-	anchored = 1.0
-	unacidable = 1
-	flammable = 0
+	anchored = TRUE
+	unacidable = TRUE
+	simulated = FALSE
+	invisibility = INVISIBILITY_MAXIMUM
+	var/delete_me = FALSE
 
 /obj/effect/landmark/New()
 	. = ..()
