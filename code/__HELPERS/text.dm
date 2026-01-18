@@ -16,7 +16,7 @@
 // Run all strings to be used in an SQL query through this proc first to properly escape out injection attempts.
 /proc/sanitizeSQL(var/t as text)
 	var/sqltext = dbcon.Quote(t);
-	return copytext(sqltext, 2, lentext(sqltext));//Quote() adds quotes around input, we already do that
+	return copytext(sqltext, 2, length(sqltext));//Quote() adds quotes around input, we already do that
 
 /*
  * Text sanitization
@@ -306,6 +306,36 @@ var/global/regex/starts_lowercase_regex = regex(@"^[a-z]")
 /proc/capitalize(var/t as text)
 	return uppertext(copytext(t, 1, 2)) + copytext(t, 2)
 
+//Returns a string with the first element of the string dcapitalized.
+/proc/decapitalize(text)
+	if(text)
+		text = lowertext(text[1]) + copytext(text, 1 + length(text[1]))
+	return text
+
+//Centers text by adding spaces to either side of the string.
+/proc/dd_centertext(message, length)
+	var/new_message = message
+	var/size = length(message)
+	var/delta = length - size
+	if(size == length)
+		return new_message
+	if(size > length)
+		return copytext_char(new_message, 1, length + 1)
+	if(delta == 1)
+		return new_message + " "
+	if(delta % 2)
+		new_message = " " + new_message
+		delta--
+	var/spaces = add_lspace("",delta/2-1)
+	return spaces + new_message + spaces
+
+//Limits the length of the text. Note: MAX_MESSAGE_LEN and MAX_NAME_LEN are widely used for this purpose
+/proc/dd_limittext(message, length)
+	var/size = length(message)
+	if(size <= length)
+		return message
+	return copytext_char(message, 1, length + 1)
+
 //This proc strips html properly, remove < > and all text between
 //for complete text sanitizing should be used sanitize()
 /proc/strip_html_properly(var/input)
@@ -336,9 +366,9 @@ var/global/regex/starts_lowercase_regex = regex(@"^[a-z]")
 //This is used for fingerprints
 /proc/stringmerge(var/text,var/compare,replace = "*")
 	var/newtext = text
-	if(lentext(text) != lentext(compare))
+	if(length(text) != length(compare))
 		return 0
-	for(var/i = 1, i < lentext(text), i++)
+	for(var/i = 1, i < length(text), i++)
 		var/a = copytext(text,i,i+1)
 		var/b = copytext(compare,i,i+1)
 		//if it isn't both the same letter, or if they are both the replacement character
@@ -358,7 +388,7 @@ var/global/regex/starts_lowercase_regex = regex(@"^[a-z]")
 	if(!text || !character)
 		return 0
 	var/count = 0
-	for(var/i = 1, i <= lentext(text), i++)
+	for(var/i = 1, i <= length(text), i++)
 		var/a = copytext(text,i,i+1)
 		if(a == character)
 			count++
@@ -458,8 +488,8 @@ var/global/regex/starts_lowercase_regex = regex(@"^[a-z]")
 //Used in preferences' SetFlavorText and human's set_flavor verb
 //Previews a string of len or less length
 /proc/TextPreview(var/string,var/len=40)
-	if(lentext(string) <= len)
-		if(!lentext(string))
+	if(length(string) <= len)
+		if(!length(string))
 			return "\[...\]"
 		else
 			return string

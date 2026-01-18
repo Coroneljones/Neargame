@@ -22,7 +22,7 @@
 
 /obj/machinery/information_terminal/south
 	pixel_y = -32
-	New()
+/obj/machinery/information_terminal/south/New()
 		..()
 		var/matrix/M = matrix()
 		M.Turn(180)
@@ -33,7 +33,7 @@
 
 /obj/machinery/information_terminal/east
 	pixel_x = 32
-	New()
+/obj/machinery/information_terminal/east/New()
 		..()
 		var/matrix/M = matrix()
 		M.Turn(90)
@@ -41,7 +41,7 @@
 
 /obj/machinery/information_terminal/west
 	pixel_x = -32
-	New()
+/obj/machinery/information_terminal/west/New()
 		..()
 		var/matrix/M = matrix()
 		M.Turn(-90)
@@ -57,15 +57,16 @@
 	..()
 
 /obj/machinery/information_terminal/proc/repeat_announces()
+	INICIO
 	spawn(100)
 		if(!length(announces))
-			goto START
+			goto INICIO
 			return
 		var/lastannounce = announces[length(announces)]
 		if(lastannounce)
 			spawn(rand(600,3000))
 				src.visible_message("<span class='examinebold'>\[Information Terminal\]</span> <span class='examine'>\'[lastannounce]\'</span>", 1)
-				goto START
+				goto INICIO
 
 /obj/machinery/information_terminal/proc/pusherize()
 	src.screenbroken = TRUE

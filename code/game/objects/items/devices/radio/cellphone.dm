@@ -61,18 +61,19 @@ var/list/mob_phone_sounds = list('sound/effects/mob0.ogg','sound/effects/mob1.og
 
 // TODO: Replace this slop with a repeating timer
 /obj/item/device/cellphone/proc/CheckCallRing()
+	ringagain
 	if(ringing && !src.rimcard.in_call)
 		spawn(100)
 			if(ringing && !src.rimcard.in_call)
 				playsound(src, ringtone, 80, 0)
 				src.visible_message("<span class='passive'>[src] rings!</span>")
-				goto START
+				goto ringagain
 	else
 		if(calling && !src.rimcard.in_call)
 			spawn(50)
 				if(calling && !src.rimcard.in_call)
 					playsound(src, 'sound/items/phone_calling.ogg', 30, 0)
-					goto START
+					goto ringagain
 
 /obj/item/device/cellphone/examine(mob/user)
 	..()

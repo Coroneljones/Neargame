@@ -249,7 +249,7 @@ var/global/max_players = 100
 
 	if(holder)
 		add_admin_verbs()
-		admin_memo_show()
+//		admin_memo_show()
 
 	// Forcibly enable hardware-accelerated graphics, as we need them for the lighting overlays.
 	// (but turn them off first, since sometimes BYOND doesn't turn them on properly otherwise)

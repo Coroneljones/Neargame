@@ -26,7 +26,7 @@ var/rtlog_path
 		if (L.name == "mapinfo" && L.mapname != "Mini War")
 			currentmaprotation = L.mapname
 	load_configuration()
-	load_map_templates()
+//	load_map_templates()
 
 	if(config && config.server_name != null && config.server_suffix && world.port > 0)
 		// dumb and hardcoded but I don't care~
