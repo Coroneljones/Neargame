@@ -511,7 +511,7 @@ var/list/slot_equipment_priority = list( \
 
 	if(msg != null)
 		msg = copytext(msg, 1, MAX_MESSAGE_LEN)
-		msg = html_encode(msg)
+		msg = rhtml_encode(msg)
 
 		flavor_text = msg
 
@@ -523,7 +523,7 @@ var/list/slot_equipment_priority = list( \
 
 /mob/proc/print_flavor_text()
 	if (flavor_text && flavor_text != "")
-		var/msg = replacetext(flavor_text, "\n", " ")
+		var/msg = sanitize_uni(replacetext(flavor_text, "\n", " "))
 		if(lentext(msg) <= 40)
 			return "\blue [msg]"
 		else
@@ -789,6 +789,7 @@ note dizziness decrements automatically in the mob's Life() proc.
 	pixel_x = old_x
 	pixel_y = old_y
 
+
 //handles up-down floaty effect in space
 /mob/proc/make_floating(var/n)
 
@@ -840,8 +841,6 @@ note dizziness decrements automatically in the mob's Life() proc.
 			stat(null,"Obj-[master_controller.objects_cost]\t#[processing_objects.len]")
 			stat(null,"Net-[master_controller.networks_cost]\tPnet-[master_controller.powernets_cost]")
 			stat(null,"NanoUI-[master_controller.nano_cost]\t#[nanomanager.processing_uis.len]")
-			stat(null,"Event-[master_controller.events_cost]\t#[event_manager.active_events.len]")
-			alarm_manager.stat_entry()
 			stat(null,"Tick-[master_controller.ticker_cost]\tALL-[master_controller.total_cost]")
 		else
 			stat(null,"MasterController-ERROR")

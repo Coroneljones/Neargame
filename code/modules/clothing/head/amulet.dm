@@ -86,10 +86,10 @@
 	neck_use = TRUE
 	item_worth = 18
 /obj/item/clothing/head/amulet/holy/cross/equipped(mob/M)
-		if(ishuman(M))
-			var/mob/living/carbon/human/H = M
-			if(H.religion == LEGAL_RELIGION)
-				H.add_event("godsave", /datum/happiness_event/misc/godsave)
+	if(ishuman(M))
+		var/mob/living/carbon/human/H = M
+		if(H.religion == LEGAL_RELIGION)
+			H.add_event("godsave", /datum/happiness_event/misc/godsave)
 
 /obj/item/clothing/head/amulet/holy/cross/copper
 	name = "copper cross"

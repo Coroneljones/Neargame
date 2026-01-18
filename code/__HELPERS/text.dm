@@ -22,16 +22,79 @@
  * Text sanitization
  */
 
+/proc/strip_non_ascii(text)
+	var/static/regex/non_ascii_regex = regex(@"[^\x00-\x7F]+", "g")
+	return non_ascii_regex.Replace(text, "")
+
+/proc/strip_html_simple(t, limit = MAX_MESSAGE_LEN)
+	var/list/strip_chars = list("<",">")
+	t = copytext(t,1,limit)
+	for(var/char in strip_chars)
+		var/index = findtext(t, char)
+		while(index)
+			t = copytext(t, 1, index) + copytext(t, index+1)
+			index = findtext(t, char)
+	return t
+
+/**
+ * Strip out the special beyond characters for \proper and \improper
+ * from text that will be sent to the browser.
+ */
+#define strip_improper(input_text) replacetext(replacetext(input_text, "\proper", ""), "\improper", "")
+var/global/regex/starts_uppercase_regex = regex(@"^[A-Z]")
+var/global/regex/starts_lowercase_regex = regex(@"^[a-z]")
+#define is_proper(input_text) ((findtext(input_text, "\proper") == 1) || findtext(input_text, starts_uppercase_regex))
+#define is_improper(input_text) ((findtext(input_text, "\improper") == 1 || findtext(input_text, starts_lowercase_regex)))
+
+/proc/sanitize_PDA(var/msg)
+	var/index = findtext(msg, "�")
+	while(index)
+		msg = copytext_char(msg, 1, index) + "&#1103;" + copytext_char(msg, index+1)
+		index = findtext(msg, "�")
+	index = findtext(msg, "&#255;")
+	while(index)
+		msg = copytext_char(msg, 1, index) + "&#1103;" + copytext_char(msg, index+1)
+		index = findtext(msg, "&#255;")
+	return msg
+
 //Used for preprocessing entered text
-/proc/sanitize(var/input, var/max_length = MAX_MESSAGE_LEN, var/encode = 1, var/trim = 1, var/extra = 1)
+/proc/sanitize(var/input, var/max_length = MAX_MESSAGE_LEN, var/encode = 1, var/trim = 1, var/extra = 1, var/ascii_only = 0)
 	if(!input)
 		return
 
 	if(max_length)
-		input = copytext(input,1,max_length)
+		var/input_length = length_char(input)
+		if(input_length > max_length)
+			to_chat(usr, SPAN_WARNING("Your message is too long by [input_length - max_length] character\s."))
+			return
+		input = copytext_char(input, 1, max_length + 1)
+
+	input = strip_improper(input)
 
 	if(extra)
 		input = replace_characters(input, list("\n"=" ","\t"=" "))
+
+	if(ascii_only)
+		// Some procs work differently depending on unicode/ascii string
+		// You should always consider this with any text processing work
+		// More: http://www.byond.com/docs/ref/info.html#/{notes}/Unicode
+		//       http://www.byond.com/forum/post/2520672
+		input = strip_non_ascii(input)
+	else
+		// Strip Unicode control/space-like chars here exept for line endings (\n,\r) and normal space (0x20)
+		// codes from https://www.compart.com/en/unicode/category/
+		//            https://en.wikipedia.org/wiki/Whitespace_character#Unicode
+		var/static/regex/unicode_control_chars = regex(@"[\u0001-\u0009\u000B\u000C\u000E-\u001F\u007F\u0080-\u009F\u00A0\u1680\u180E\u2000-\u200D\u2028\u2029\u202F\u205F\u2060\u3000\uFEFF]", "g")
+		input = unicode_control_chars.Replace(input, "")
+		// Allows at most one Unicode combining diacritical mark in a row
+		// Codes acquired from https://en.wikipedia.org/wiki/Combining_Diacritical_Marks
+		//                     https://en.wikipedia.org/wiki/Combining_Diacritical_Marks_Extended
+		//                     https://en.wikipedia.org/wiki/Combining_Diacritical_Marks_Supplement
+		//                     https://en.wikipedia.org/wiki/Combining_Diacritical_Marks_for_Symbols
+		//                     https://en.wikipedia.org/wiki/Combining_Half_Marks
+		var/static/regex/unicode_diacritical_marks = regex(@"([\u0300-\u036F\u1AB0-\u1ACE\u1DC0-\u1DFF\u20D0-\u20F0\uFE20-\uFE2F]){2,}", "g")
+		input = unicode_diacritical_marks.Replace(input, "$1")
+
 
 	if(encode)
 		// The below \ escapes have a space inserted to attempt to enable Travis auto-checking of span class usage. Please do not remove the space.
@@ -50,12 +113,42 @@
 
 	return input
 
-//Run sanitize(), but remove <, >, " first to prevent displaying them as &gt; &lt; &34; in some places, after html_encode().
+//Run sanitize(), but remove <, >, " first to prevent displaying them as &gt; &lt; &34; in some places after html_encode().
 //Best used for sanitize object names, window titles.
-//If you have a problem with sanitize() in chat, when quotes and >, < are displayed as html entites -
-//this is a problem of double-encode(when & becomes &amp;), use sanitize() with encode=0, but not the sanitizeSafe()!
-/proc/sanitizeSafe(var/input, var/max_length = MAX_MESSAGE_LEN, var/encode = 1, var/trim = 1, var/extra = 1)
-	return sanitize(replace_characters(input, list(">"=" ","<"=" ", "\""="'")), max_length, encode, trim, extra)
+//If you have a problem with sanitize() in chat, when quotes and >, < are displayed as html entities -
+//this is a problem of double-encode(when & becomes &amp;), use sanitize() with encode=0, but not the sanitize_safe()!
+/proc/sanitize_safe(input, max_length = MAX_MESSAGE_LEN, encode = TRUE, trim = TRUE, extra = TRUE, ascii_only = FALSE)
+	return sanitize(replace_characters(input, list(">"=" ","<"=" ", "\""="'")), max_length, encode, trim, extra, ascii_only)
+
+/proc/paranoid_sanitize(var/t)
+	var/regex/alphanum_only = regex("\[^a-zA-Z0-9# ,.?!:;()]", "g")
+	return alphanum_only.Replace(t, "#")
+
+/proc/sanitize_uni(var/t,var/list/repl_chars = list("�"="&#255;"))
+	for(var/char in repl_chars)
+		var/index = findtext(t, char)
+		while(index)
+			t = copytext_char(t, 1, index) + repl_chars[char] + copytext_char(t, index+1)
+			index = findtext(t, char)
+	return t
+
+//Returns null if there is any bad text in the string
+/proc/reject_bad_text(text, max_length=512)
+	if(length(text) > max_length)	return			//message too long
+	var/non_whitespace = 0
+	for(var/i=1, i<=length(text), i++)
+		switch(text2ascii(text,i))
+			if(62,60,92,47)	return			//rejects the text if it contains these bad characters: <, >, \ or /
+			if(127 to 255)	return			//rejects non-ASCII letters
+			if(0 to 31)		return			//more weird stuff
+			if(32)			continue		//whitespace
+			else			non_whitespace = 1
+	if(non_whitespace)		return text		//only accepts the text if it has some non-spaces
+
+// Used to get a sanitized input.
+/proc/stripped_input(var/mob/user, var/message = "", var/title = "", var/default = "", var/max_length=MAX_MESSAGE_LEN)
+	var/name = input(user, message, title, default)
+	return strip_html_simple(name, max_length)
 
 //Filters out undesirable characters from names
 /proc/sanitizeName(var/input, var/max_length = MAX_NAME_LEN, var/allow_numbers = 0)
@@ -121,19 +214,6 @@
 
 	return output
 
-//Returns null if there is any bad text in the string
-/proc/reject_bad_text(var/text, var/max_length=512)
-	if(length(text) > max_length)	return			//message too long
-	var/non_whitespace = 0
-	for(var/i=1, i<=length(text), i++)
-		switch(text2ascii(text,i))
-			if(62,60,92,47)	return			//rejects the text if it contains these bad characters: <, >, \ or /
-			if(127 to 255)	return			//rejects weird letters like �
-			if(0 to 31)		return			//more weird stuff
-			if(32)			continue		//whitespace
-			else			non_whitespace = 1
-	if(non_whitespace)		return text		//only accepts the text if it has some non-spaces
-
 
 //Old variant. Haven't dared to replace in some places.
 /proc/sanitize_old(var/t,var/list/repl_chars = list("\n"="#","\t"="#"))
@@ -179,6 +259,12 @@
 	for(var/char in repl_chars)
 		t = replacetext(t, char, repl_chars[char])
 	return t
+
+/proc/replaceText(text, find, replacement)
+	return list2text(text2list(text, find), replacement)
+
+/proc/replaceTextEx(text, find, replacement)
+	return list2text(text2listEx(text, find), replacement)
 
 //Adds 'u' number of zeros ahead of the text 't'
 /proc/add_zero(t, u)
@@ -284,6 +370,91 @@
 		new_text += copytext(text, i, i+1)
 	return new_text
 
+/proc/upperrustext(text as text)
+	var/t = ""
+	for(var/i = 1, i <= length(text), i++)
+		var/a = text2ascii(text, i)
+		if (a > 223)
+			t += ascii2text(a - 32)
+		else if (a == 184)
+			t += ascii2text(168)
+		else t += ascii2text(a)
+	t = replacetext(t,"&#255;","�")
+	return t
+
+
+/proc/lowerrustext(text as text)
+	var/t = ""
+	for(var/i = 1, i <= length(text), i++)
+		var/a = text2ascii(text, i)
+		if (a > 191 && a < 224)
+			t += ascii2text(a + 32)
+		else if (a == 168)
+			t += ascii2text(184)
+		else t += ascii2text(a)
+	return t
+
+/proc/rhtml_encode(var/msg)
+	var/list/c = text2list(msg, "�")
+	if(c.len == 1)
+		c = text2list(msg, "&#255;")
+		if(c.len == 1)
+			return html_encode(msg)
+	var/out = ""
+	var/first = 1
+	for(var/text in c)
+		if(!first)
+			out += "&#255;"
+		first = 0
+		out += html_encode(text)
+	return out
+
+/proc/rhtml_encode_paper(var/msg)
+	var/list/c = text2list(msg, "�")
+	if(c.len == 1)
+		c = text2list(msg, "&#1103;")
+		if(c.len == 1)
+			return html_encode(msg)
+	var/out = ""
+	var/first = 1
+	for(var/text in c)
+		if(!first)
+			out += "&#1103;"
+		first = 0
+		out += html_encode(text)
+	return out
+
+/proc/rhtml_decode(var/msg)
+	var/list/c = text2list(msg, "�")
+	if(c.len == 1)
+		c = text2list(msg, "&#255;")
+		if(c.len == 1)
+			return html_decode(msg)
+	var/out = ""
+	var/first = 1
+	for(var/text in c)
+		if(!first)
+			out += "&#255;"
+		first = 0
+		out += html_decode(text)
+	return out
+
+/proc/rhtml_decode_paper(var/msg)
+	var/list/c = text2list(msg, "�")
+	if(c.len == 1)
+		c = text2list(msg, "&#1103;")
+		if(c.len == 1)
+			return html_decode(msg)
+	var/out = ""
+	var/first = 1
+	for(var/text in c)
+		if(!first)
+			out += "&#1103;"
+		first = 0
+		out += html_decode(text)
+	return out
+
+
 //Used in preferences' SetFlavorText and human's set_flavor verb
 //Previews a string of len or less length
 /proc/TextPreview(var/string,var/len=40)
@@ -298,6 +469,11 @@
 //alternative copytext() for encoded text, doesn't break html entities (&#34; and other)
 /proc/copytext_preserve_html(var/text, var/first, var/last)
 	return html_encode(copytext(html_decode(text), first, last))
+
+/proc/sql_sanitize_text(var/text)
+	text = replacetext(text, "'", "''")
+	text = replacetext(text, ";", "")
+	text = replacetext(text, "&", "")
 
 //For generating neat chat tag-images
 //The icon var could be local in the proc, but it's a waste of resources
@@ -328,8 +504,10 @@
  * Strip out the special beyond characters for \proper and \improper
  * from text that will be sent to the browser.
  */
-/proc/strip_improper(var/text)
-	return replacetext(replacetext(text, "\proper", ""), "\improper", "")
+/*/proc/strip_improper(var/text)
+	return replacetext(replacetext(text, "\proper", ""), "\improper", "")*/
+
+#define gender2text(gender) capitalize(gender)
 
 //Used for applying byonds text macros to strings that are loaded at runtime
 /proc/apply_text_macros(string)
@@ -387,9 +565,6 @@
 	if(rest)
 		. += .(rest)
 
-
-#define gender2text(gender) capitalize(gender)
-
 /**
  * Returns the text if properly formatted, or null else.
  *
@@ -428,11 +603,11 @@
  ** max_length - If you intend to impose a length limit - default is 1024.
  ** no_trim - Prevents the input from being trimmed if you intend to parse newlines or whitespace.
 */
-/proc/stripped_input(mob/user, message = "", title = "", default = "", max_length = MAX_MESSAGE_LEN, no_trim = FALSE)
+/*/proc/stripped_input(mob/user, message = "", title = "", default = "", max_length = MAX_MESSAGE_LEN, no_trim = FALSE)
 	var/user_input = input(user, message, title, default) as text|null
 	if(isnull(user_input)) // User pressed cancel
 		return
 	if(no_trim)
 		return copytext(html_encode(user_input), 1, max_length)
 	else
-		return trim(html_encode(user_input), max_length) //trim is "outside" because html_encode can expand single symbols into multiple symbols (such as turning < into &lt;)
+		return trim(html_encode(user_input), max_length) *///trim is "outside" because html_encode can expand single symbols into multiple symbols (such as turning < into &lt;)

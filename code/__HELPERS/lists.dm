@@ -586,9 +586,6 @@ proc/dd_sortedObjectList(list/incoming)
 /obj/machinery/camera/dd_SortValue()
 	return "[c_tag]"
 
-/datum/alarm/dd_SortValue()
-	return "[sanitize_old(last_name)]"
-
 /proc/subtypesof(prototype)
 	return (typesof(prototype) - prototype)
 

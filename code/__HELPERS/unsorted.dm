@@ -487,6 +487,14 @@ Turf and target are seperate in case you want to teleport some distance from a t
 	if(M < 0)
 		return -M
 
+//Will return the location of the turf an atom is ultimatly sitting on
+/proc/get_turf_loc(var/atom/movable/M) //gets the location of the turf that the atom is on, or what the atom is in is on, etc
+	//in case they're in a closet or sleeper or something
+	var/atom/loc = M.loc
+	while(!istype(loc, /turf/))
+		loc = loc.loc
+	return loc
+
 // returns the turf located at the map edge in the specified direction relative to A
 // used for mass driver
 /proc/get_edge_target_turf(var/atom/A, var/direction)

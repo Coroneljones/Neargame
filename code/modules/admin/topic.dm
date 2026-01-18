@@ -1803,7 +1803,7 @@
 						F.lava = 1
 
 				spawn(0)
-					for(var/i = i; i < length, i++) // 180 = 3 minutes
+					for(var/i = i, i < length, i++) // 180 = 3 minutes
 						if(damage)
 							for(var/mob/living/carbon/L in living_mob_list)
 								if(istype(L.loc, /turf/simulated/floor)) // Are they on LAVA?!
@@ -2014,7 +2014,7 @@
 		src.access_news_network()
 
 	else if(href_list["ac_set_new_message"])
-		src.admincaster_feed_message.body = sanitize(input(usr, "Write your Feed story", "Network Channel Handler", ""))
+		src.admincaster_feed_message.body = sanitize_uni(input(usr, "Write your Feed story", "Network Channel Handler", ""))
 		while (findtext(src.admincaster_feed_message.body," ") == 1)
 			src.admincaster_feed_message.body = copytext(src.admincaster_feed_message.body,2,length(src.admincaster_feed_message.body)+1)
 		src.access_news_network()
@@ -2067,13 +2067,13 @@
 		src.access_news_network()
 
 	else if(href_list["ac_set_wanted_name"])
-		src.admincaster_feed_message.author = sanitize(input(usr, "Provide the name of the Wanted person", "Network Security Handler", ""))
+		src.admincaster_feed_message.author = sanitize_uni(input(usr, "Provide the name of the Wanted person", "Network Security Handler", ""))
 		while (findtext(src.admincaster_feed_message.author," ") == 1)
 			src.admincaster_feed_message.author = copytext(admincaster_feed_message.author,2,length(admincaster_feed_message.author)+1)
 		src.access_news_network()
 
 	else if(href_list["ac_set_wanted_desc"])
-		src.admincaster_feed_message.body = sanitize(input(usr, "Provide the a description of the Wanted person and any other details you deem important", "Network Security Handler", ""))
+		src.admincaster_feed_message.body = sanitize_uni(input(usr, "Provide the a description of the Wanted person and any other details you deem important", "Network Security Handler", ""))
 		while (findtext(src.admincaster_feed_message.body," ") == 1)
 			src.admincaster_feed_message.body = copytext(src.admincaster_feed_message.body,2,length(src.admincaster_feed_message.body)+1)
 		src.access_news_network()
@@ -2180,7 +2180,7 @@
 		src.access_news_network()
 
 	else if(href_list["ac_set_signature"])
-		src.admincaster_signature = sanitize(input(usr, "Provide your desired signature", "Network Identity Handler", ""))
+		src.admincaster_signature = sanitize_uni(input(usr, "Provide your desired signature", "Network Identity Handler", ""))
 		src.access_news_network()
 
 	else if(href_list["vsc"])
